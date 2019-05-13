@@ -654,17 +654,17 @@ THREE.OrbitControls = function(object, domElement) {
 		switch (event.button) {
 			case scope.mouseButtons.LEFT:
 				if (event.ctrlKey || event.metaKey || event.shiftKey) {
-					if (scope.enablePan === false) return;
-
-					handleMouseDownPan(event);
-
-					state = STATE.PAN;
-				} else {
 					if (scope.enableRotate === false) return;
 
 					handleMouseDownRotate(event);
 
 					state = STATE.ROTATE;
+				} else {
+					if (scope.enablePan === false) return;
+
+					handleMouseDownPan(event);
+
+					state = STATE.PAN;
 				}
 
 				break;
