@@ -4,12 +4,15 @@
 		<meta charset="utf-8" />
 		<title>My first three.js app</title>
 		<style>
+			html,
 			body {
 				margin: 0;
+				height: 100%;
 			}
 			canvas {
 				width: 100%;
 				height: 100%;
+				display: block;
 			}
 		</style>
 	</head>
@@ -18,11 +21,8 @@
 		<script src="js/QuickHull.js"></script>
 		<script src="js/ConvexGeometry.js"></script>
 		<script src="js/orbitControls.js"></script>
-		<script src="js/simplify.js"></script>
 		<script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
-		<script src="js/oboe-browser.min.js"></script>
 		<script>
-
 			// Scene
 			var scene = new THREE.Scene();
 			scene.fog = new THREE.Fog(0x000000, 1, 400000);
@@ -30,7 +30,7 @@
 			// Renderer
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
-			renderer.setClearColor( scene.fog.color, 1 );
+			renderer.setClearColor(scene.fog.color, 1);
 			// Gamma settings make things look 'nicer' for some reason
 			renderer.gammaInput = true;
 			renderer.gammaOutput = true;
@@ -38,144 +38,162 @@
 			renderer.shadowMap.enabled = true;
 			renderer.shadowMapSoft = true;
 			document.body.appendChild(renderer.domElement);
-			
 
 			// Camera
 			const cameraRadius = 60000;
 			const theta = 45;
 			const phi = 60;
-			var camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 2, 400000 );
-			camera.position.x = cameraRadius * Math.sin( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 );
-			camera.position.y = cameraRadius * Math.sin( phi * Math.PI / 360 );
-			camera.position.z = cameraRadius * Math.cos( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 );
+			var camera = new THREE.PerspectiveCamera(
+				40,
+				window.innerWidth / window.innerHeight,
+				2,
+				400000
+			);
+			camera.position.x =
+				cameraRadius *
+				Math.sin((theta * Math.PI) / 360) *
+				Math.cos((phi * Math.PI) / 360);
+			camera.position.y = cameraRadius * Math.sin((phi * Math.PI) / 360);
+			camera.position.z =
+				cameraRadius *
+				Math.cos((theta * Math.PI) / 360) *
+				Math.cos((phi * Math.PI) / 360);
 
 			// Controls
 			var controls = new THREE.OrbitControls(camera);
 			// TODO: https://github.com/mrdoob/three.js/issues/7384#issuecomment-149972582
 
-			// Floor Wire
-			var floorWireGeom = new THREE.PlaneGeometry(65513, 31017,  200, 200);
-			var floorWireMat = new THREE.MeshBasicMaterial({color: 0xcccccc, wireframe: true});
-			var floorWire = new THREE.Mesh(floorWireGeom, floorWireMat);
-			floorWire.position.y = -0.1;
-			floorWire.rotation.x = - 90 * Math.PI / 180;
-			// scene.add(floorWire)
-
 			// Floor
 			var floorGeom = new THREE.PlaneGeometry(65513, 31017);
-			var floorMat = new THREE.MeshBasicMaterial({color: 0x000000});
+			var floorMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
 			var floor = new THREE.Mesh(floorGeom, floorMat);
 			floor.position.y = -0.2;
-			floor.rotation.x = - 90 * Math.PI / 180;
-			scene.add(floor)
+			floor.rotation.x = (-90 * Math.PI) / 180;
+			scene.add(floor);
 
 			// Lights
-			var ambientLight = new THREE.AmbientLight( 0x555555 );
-			ambientLight.color.setHSL( 0.1, 0.1, 0.4 );
-			scene.add(ambientLight)
+			var ambientLight = new THREE.AmbientLight(0x555555);
+			ambientLight.color.setHSL(0.1, 0.1, 0.4);
+			scene.add(ambientLight);
 
-			var directionalLight = new THREE.DirectionalLight( 0xffffff );
-			directionalLight.color.setHSL(0.1, 0.1, 0.55 );
+			var directionalLight = new THREE.DirectionalLight(0xffffff);
+			directionalLight.color.setHSL(0.1, 0.1, 0.55);
 			directionalLight.position.x = 1000;
 			directionalLight.position.y = 1000;
 			directionalLight.position.z = 750;
 			directionalLight.position.normalize();
-			scene.add(directionalLight)
+			scene.add(directionalLight);
 
-			var directionalLight2 = new THREE.DirectionalLight( 0x808080 );
-			directionalLight2.color.setHSL( 0.1, 0.1, 0.5 );
-			directionalLight2.position.x = - 1000;
+			var directionalLight2 = new THREE.DirectionalLight(0x808080);
+			directionalLight2.color.setHSL(0.1, 0.1, 0.5);
+			directionalLight2.position.x = -1000;
 			directionalLight2.position.y = 1000;
-			directionalLight2.position.z = - 750;
+			directionalLight2.position.z = -750;
 			directionalLight2.position.normalize();
-			scene.add(directionalLight2)
+			scene.add(directionalLight2);
 
-			var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.65 );
-			hemiLight.color.setHSL( 0.6, 0.35, 0.7 );
-			hemiLight.groundColor.setHSL( 0.095, 0.5, 0.6 );
-			hemiLight.position.set( 0, 600, 0 );
-			scene.add(hemiLight)
+			var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.65);
+			hemiLight.color.setHSL(0.6, 0.35, 0.7);
+			hemiLight.groundColor.setHSL(0.095, 0.5, 0.6);
+			hemiLight.position.set(0, 600, 0);
+			scene.add(hemiLight);
 
-			// Building
-
-			const buildingsGeom = new THREE.Geometry()
-			var buildingsMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc, side: THREE.DoubleSide} );
+			// Buildings
+			const buildingsGeom = new THREE.Geometry();
+			var buildingsMaterial = new THREE.MeshLambertMaterial({
+				color: 0xcccccc,
+				side: THREE.DoubleSide
+			});
 
 			fetch("./js/data.json")
 				.then(res => res.json())
 				.then(data => {
-					data.forEach(building => renderBuilding(building))
+					data.forEach(building => renderBuilding(building));
 					fetch("./js/data2.json")
 						.then(res => res.json())
 						.then(data => {
-							data.forEach(building => renderBuilding(building))
+							data.forEach(building => renderBuilding(building));
 							fetch("./js/data3.json")
 								.then(res => res.json())
 								.then(data => {
-									data.forEach(building => renderBuilding(building))
+									data.forEach(building => renderBuilding(building));
 									fetch("./js/data4.json")
 										.then(res => res.json())
 										.then(data => {
-											data.forEach(building => renderBuilding(building))
+											data.forEach(building =>
+												renderBuilding(building)
+											);
 											fetch("./js/data5.json")
 												.then(res => res.json())
 												.then(data => {
-													data.forEach(building => renderBuilding(building))	
-													var buildingsMesh = new THREE.Mesh(buildingsGeom, buildingsMaterial)
-													scene.add(buildingsMesh)
-												})
-										})
-								})
-						})
-				})
-
-			// oboe('./js/data_full.json')
-			// 	.node("*", data => {
-			// 		// console.log(`Loaded ${data.length} buildings.`)
-			// 		data.forEach(building => renderBuilding(building))
-			// 	}) 
-			// 	.done((things) => {
-			// 		console.log("Loaded", things.length, "buildings")
-			// 		var buildingsMesh = new THREE.Mesh(buildingsGeom, buildingsMaterial)
-			// 		scene.add(buildingsMesh)
-			// 	})
-
-			var animate = function() {
-				requestAnimationFrame(animate);
-				controls.update();
-				stats.begin();
-				renderer.render(scene, camera);
-				stats.end();
-			};
+													data.forEach(building =>
+														renderBuilding(building)
+													);
+													var buildingsMesh = new THREE.Mesh(
+														buildingsGeom,
+														buildingsMaterial
+													);
+													scene.add(buildingsMesh);
+												});
+										});
+								});
+						});
+				});
 
 			// Stats
 			var stats = new Stats();
-			stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-			document.body.appendChild( stats.dom );
+			stats.showPanel(0); // 0: fps
+			document.body.appendChild(stats.dom);
 
 			animate();
 
 			function renderBuilding(surfaces) {
-				// var modifier = new THREE.SimplifyModifier();
-				// const buildingGeom = new THREE.Geometry()
 				surfaces.forEach(([surface], index) => {
-					const points = surface.map(vertex =>
-						new THREE.Vector3(
-							THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) - (65513 / 2),
-							THREE.Math.mapLinear(vertex[2], -39.0158999999985, 1797.1066, 0, 1836),
-							THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) - (31017 / 2)
-						)
-					)
-					const surfaceGeom = new THREE.ConvexGeometry(points)
-					// var surfaceMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc, side: THREE.DoubleSide} );
-					// var surfaceMesh = new THREE.Mesh( surfaceGeom, buildingsMaterial );
-					// scene.add( surfacePlane );
-					buildingsGeom.merge(surfaceGeom, surfaceGeom.matrix)
-					// var simplified = surfacePlane.clone();
-				})
-				// var buildingMaterial = new THREE.MeshLambertMaterial( {color: 0xcccccc, side: THREE.DoubleSide} );
-				// var buildingMesh = new THREE.Mesh(buildingGeom, buildingMaterial )
-				// scene.add(buildingMesh)
+					const points = surface.map(
+						vertex =>
+							new THREE.Vector3(
+								THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) -
+									65513 / 2,
+								THREE.Math.mapLinear(
+									vertex[2],
+									-39.0158999999985,
+									1797.1066,
+									0,
+									1836
+								),
+								THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) -
+									31017 / 2
+							)
+					);
+					if (points.length < 4) return;
+					const surfaceGeom = new THREE.ConvexGeometry(points);
+					buildingsGeom.merge(surfaceGeom, surfaceGeom.matrix);
+				});
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				if (resizeRendererToDisplaySize(renderer)) {
+					const canvas = renderer.domElement;
+					camera.aspect = canvas.clientWidth / canvas.clientHeight;
+					camera.updateProjectionMatrix();
+				}
+				controls.update();
+				stats.begin();
+				renderer.render(scene, camera);
+				stats.end();
+			}
+
+			function resizeRendererToDisplaySize(renderer) {
+				const canvas = renderer.domElement;
+				const pixelRatio = window.devicePixelRatio;
+				const width = canvas.clientWidth * pixelRatio;
+				const height = canvas.clientHeight * pixelRatio;
+				const needResize = canvas.width !== width || canvas.height !== height;
+				if (needResize) {
+					renderer.setSize(width, height, false);
+				}
+				return needResize;
 			}
 		</script>
 	</body>
