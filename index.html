@@ -99,46 +99,41 @@
 			scene.add(hemiLight);
 
 			// Buildings
-			const buildingsGeom = new THREE.Geometry();
-			var buildingsMaterial = new THREE.MeshLambertMaterial({
+			const buildingsGeom = new THREE.BufferGeometry();
+			var buildingsMaterial = new THREE.MeshBasicMaterial({
 				color: 0xcccccc,
 				side: THREE.DoubleSide
 			});
 
-			fetch("./js/data.json")
+			// fetch("./js/data.json")
+			// 	.then(res => res.json())
+			// 	.then(data => {
+			// 		data.forEach(building => renderBuilding(building));
+			// 		fetch("./js/data2.json")
+			// 			.then(res => res.json())
+			// 			.then(data => {
+			// 				data.forEach(building => renderBuilding(building));
+			// 				fetch("./js/data3.json")
+			// 					.then(res => res.json())
+			// 					.then(data => {
+			// 						data.forEach(building => renderBuilding(building));
+			// 						fetch("./js/data4.json")
+			// 							.then(res => res.json())
+			// 							.then(data => {
+			// 								data.forEach(building =>
+			// 									renderBuilding(building)
+			// 								);
+			fetch("./js/data5.json")
 				.then(res => res.json())
 				.then(data => {
-					data.forEach(building => renderBuilding(building));
-					fetch("./js/data2.json")
-						.then(res => res.json())
-						.then(data => {
-							data.forEach(building => renderBuilding(building));
-							fetch("./js/data3.json")
-								.then(res => res.json())
-								.then(data => {
-									data.forEach(building => renderBuilding(building));
-									fetch("./js/data4.json")
-										.then(res => res.json())
-										.then(data => {
-											data.forEach(building =>
-												renderBuilding(building)
-											);
-											fetch("./js/data5.json")
-												.then(res => res.json())
-												.then(data => {
-													data.forEach(building =>
-														renderBuilding(building)
-													);
-													var buildingsMesh = new THREE.Mesh(
-														buildingsGeom,
-														buildingsMaterial
-													);
-													scene.add(buildingsMesh);
-												});
-										});
-								});
-						});
+					data.slice(0, 100).forEach(building => renderBuilding(building));
+					var buildingsMesh = new THREE.Mesh(buildingsGeom, buildingsMaterial);
+					scene.add(buildingsMesh);
 				});
+			// 						});
+			// 				});
+			// 		});
+			// });
 
 			// Stats
 			var stats = new Stats();
@@ -147,39 +142,42 @@
 
 			animate();
 
+			let index = 0;
 			function renderBuilding(surfaces) {
 				surfaces.forEach(([surface], index) => {
-					const points = surface.map(
-						vertex =>
-							new THREE.Vector3(
-								THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) -
-									65513 / 2,
-								THREE.Math.mapLinear(
-									vertex[2],
-									-39.0158999999985,
-									1797.1066,
-									0,
-									1836
-								),
-								THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) -
-									31017 / 2
-							)
+					const surfaceGeom = new THREE.BufferGeometry();
+					const points = [];
+					for (var i = 0; i < surface.length - 2; i++) {
+						points.push(...pointFromVertex(surface[i]));
+						points.push(...pointFromVertex(surface[i + 1]));
+						points.push(...pointFromVertex(surface[i + 2]));
+					}
+					const vertices = new Float32Array(points);
+					surfaceGeom.addAttribute(
+						"position",
+						new THREE.BufferAttribute(vertices, 3)
 					);
-					if (points.length < 4) return;
-					const surfaceGeom = new THREE.ConvexGeometry(points);
-					buildingsGeom.merge(surfaceGeom, surfaceGeom.matrix);
+					buildingsGeom.merge(surfaceGeom, index++);
 				});
+			}
+
+			function pointFromVertex(vertex) {
+				return [
+					THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) - 65513 / 2,
+					THREE.Math.mapLinear(vertex[2], -39.0158999999985, 1797.1066, 0, 1836),
+					THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) - 31017 / 2
+				];
 			}
 
 			function animate() {
 				requestAnimationFrame(animate);
+				stats.begin();
 				if (resizeRendererToDisplaySize(renderer)) {
 					const canvas = renderer.domElement;
 					camera.aspect = canvas.clientWidth / canvas.clientHeight;
 					camera.updateProjectionMatrix();
 				}
 				controls.update();
-				stats.begin();
 				renderer.render(scene, camera);
 				stats.end();
 			}
