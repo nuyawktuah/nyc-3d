@@ -18,8 +18,7 @@
 	</head>
 	<body>
 		<script src="js/three.js"></script>
-		<script src="js/QuickHull.js"></script>
-		<script src="js/ConvexGeometry.js"></script>
+		<script src="js/BufferGeometryUtils.js"></script>
 		<script src="js/orbitControls.js"></script>
 		<script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
 		<script>
@@ -99,41 +98,66 @@
 			scene.add(hemiLight);
 
 			// Buildings
-			const buildingsGeom = new THREE.BufferGeometry();
-			var buildingsMaterial = new THREE.MeshBasicMaterial({
-				color: 0xcccccc,
-				side: THREE.DoubleSide
-			});
+			const buildingGeoms = [];
 
-			// fetch("./js/data.json")
-			// 	.then(res => res.json())
-			// 	.then(data => {
-			// 		data.forEach(building => renderBuilding(building));
-			// 		fetch("./js/data2.json")
-			// 			.then(res => res.json())
-			// 			.then(data => {
-			// 				data.forEach(building => renderBuilding(building));
-			// 				fetch("./js/data3.json")
-			// 					.then(res => res.json())
-			// 					.then(data => {
-			// 						data.forEach(building => renderBuilding(building));
-			// 						fetch("./js/data4.json")
-			// 							.then(res => res.json())
-			// 							.then(data => {
-			// 								data.forEach(building =>
-			// 									renderBuilding(building)
-			// 								);
-			fetch("./js/data5.json")
+			// fetch("./data.dat")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		console.log(buffer)
+			// 		const buildingData = new Float32Array(buffer)
+			// 		console.log(buildingData)
+			// 		renderFloatBuilding(buildingData)
+			// 	})
+
+			fetch("./js/data.json")
 				.then(res => res.json())
 				.then(data => {
-					data.slice(0, 100).forEach(building => renderBuilding(building));
-					var buildingsMesh = new THREE.Mesh(buildingsGeom, buildingsMaterial);
-					scene.add(buildingsMesh);
+					data.forEach(building => renderBuilding(building));
+					fetch("./js/data2.json")
+						.then(res => res.json())
+						.then(data => {
+							data.forEach(building => renderBuilding(building));
+							fetch("./js/data3.json")
+								.then(res => res.json())
+								.then(data => {
+									data.forEach(building => renderBuilding(building));
+									fetch("./js/data4.json")
+										.then(res => res.json())
+										.then(data => {
+											data.forEach(building =>
+												renderBuilding(building)
+											);
+
+											fetch("./js/data.json")
+												.then(res => res.json())
+												.then(data => {
+													console.log("Loaded data");
+													data.forEach(building =>
+														renderBuilding(building)
+													);
+													const bufferUtils =
+														THREE.BufferGeometryUtils;
+													const buildingsGeom = bufferUtils.mergeBufferGeometries(
+														buildingGeoms
+													);
+													buildingsGeom.computeVertexNormals();
+
+													const buildingsMaterial = new THREE.MeshLambertMaterial(
+														{
+															color: 0xcccccc,
+															side: THREE.DoubleSide
+														}
+													);
+													const buildingsMesh = new THREE.Mesh(
+														buildingsGeom,
+														buildingsMaterial
+													);
+													scene.add(buildingsMesh);
+												});
+										});
+								});
+						});
 				});
-			// 						});
-			// 				});
-			// 		});
-			// });
 
 			// Stats
 			var stats = new Stats();
@@ -142,23 +166,42 @@
 
 			animate();
 
-			let index = 0;
+			function renderFloatBuilding(vertices) {
+				const surfaceGeom = new THREE.BufferGeometry();
+				surfaceGeom.addAttribute(
+					"position",
+					new THREE.BufferAttribute(vertices, 3)
+				);
+				buildingGeoms.push(surfaceGeom)
+				const bufferUtils = THREE.BufferGeometryUtils
+				const buildingsGeom = bufferUtils.mergeBufferGeometries(buildingGeoms);
+				buildingsGeom.computeVertexNormals();
+
+				const buildingsMaterial = new THREE.MeshLambertMaterial({
+					color: 0xcccccc,
+					side: THREE.DoubleSide
+				});
+				const buildingsMesh = new THREE.Mesh(buildingsGeom, buildingsMaterial);
+				scene.add(buildingsMesh);
+			}
+
+			
 			function renderBuilding(surfaces) {
+				const surfaceGeom = new THREE.BufferGeometry();
+				const points = [];
 				surfaces.forEach(([surface], index) => {
-					const surfaceGeom = new THREE.BufferGeometry();
-					const points = [];
 					for (var i = 0; i < surface.length - 2; i++) {
 						points.push(...pointFromVertex(surface[i]));
 						points.push(...pointFromVertex(surface[i + 1]));
 						points.push(...pointFromVertex(surface[i + 2]));
 					}
-					const vertices = new Float32Array(points);
-					surfaceGeom.addAttribute(
-						"position",
-						new THREE.BufferAttribute(vertices, 3)
-					);
-					buildingsGeom.merge(surfaceGeom, index++);
 				});
+				const vertices = new Float32Array(points);
+				surfaceGeom.addAttribute(
+					"position",
+					new THREE.BufferAttribute(vertices, 3)
+				);
+				buildingGeoms.push(surfaceGeom)
 			}
 
 			function pointFromVertex(vertex) {
