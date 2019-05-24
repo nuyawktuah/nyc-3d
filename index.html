@@ -99,65 +99,131 @@
 
 			// Buildings
 			const buildingGeoms = [];
-
-			// fetch("./data.dat")
+			// fetch("./data100000.data")
 			// 	.then(res => res.arrayBuffer())
 			// 	.then(buffer => {
-			// 		console.log(buffer)
-			// 		const buildingData = new Float32Array(buffer)
-			// 		console.log(buildingData)
-			// 		renderFloatBuilding(buildingData)
-			// 	})
-
-			fetch("./js/data.json")
-				.then(res => res.json())
-				.then(data => {
-					data.forEach(building => renderBuilding(building));
-					fetch("./js/data2.json")
-						.then(res => res.json())
-						.then(data => {
-							data.forEach(building => renderBuilding(building));
-							fetch("./js/data3.json")
-								.then(res => res.json())
-								.then(data => {
-									data.forEach(building => renderBuilding(building));
-									fetch("./js/data4.json")
-										.then(res => res.json())
-										.then(data => {
-											data.forEach(building =>
-												renderBuilding(building)
-											);
-
-											fetch("./js/data.json")
-												.then(res => res.json())
-												.then(data => {
-													console.log("Loaded data");
-													data.forEach(building =>
-														renderBuilding(building)
-													);
-													const bufferUtils =
-														THREE.BufferGeometryUtils;
-													const buildingsGeom = bufferUtils.mergeBufferGeometries(
-														buildingGeoms
-													);
-													buildingsGeom.computeVertexNormals();
-
-													const buildingsMaterial = new THREE.MeshLambertMaterial(
-														{
-															color: 0xcccccc,
-															side: THREE.DoubleSide
-														}
-													);
-													const buildingsMesh = new THREE.Mesh(
-														buildingsGeom,
-														buildingsMaterial
-													);
-													scene.add(buildingsMesh);
-												});
-										});
-								});
-						});
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+			//
+			// fetch("./data200000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+			fetch("./data.data")
+				.then(res => res.arrayBuffer())
+				.then(buffer => {
+					const buildingData = new Float32Array(buffer);
+					renderFloatBuildings(buildingData);
 				});
+			// fetch("./data400000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+
+			// fetch("./data500000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+			//
+			// fetch("./data600000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		console.log(buffer);
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+			//
+			// fetch("./data700000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		console.log(buffer);
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+
+			// fetch("./data800000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		console.log(buffer);
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+			//
+			// fetch("./data900000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		console.log(buffer);
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+			//
+			// fetch("./data1000000.data")
+			// 	.then(res => res.arrayBuffer())
+			// 	.then(buffer => {
+			// 		console.log(buffer);
+			// 		const buildingData = new Float32Array(buffer);
+			// 		renderFloatBuilding(buildingData);
+			// 	});
+
+			// 			fetch("./js/data.json")
+			// 				.then(res => res.json())
+			// 				.then(data => {
+			// 					data.forEach(building => renderBuilding(building));
+			// 					fetch("./js/data2.json")
+			// 						.then(res => res.json())
+			// 						.then(data => {
+			// 							data.forEach(building => renderBuilding(building));
+			// 							fetch("./js/data3.json")
+			// 								.then(res => res.json())
+			// 								.then(data => {
+			// 									data.forEach(building =>
+			// 										renderBuilding(building)
+			// 									);
+			// 									fetch("./js/data4.json")
+			// 										.then(res => res.json())
+			// 										.then(data => {
+			// 											data.forEach(building =>
+			// 												renderBuilding(building)
+			// 											);
+			//
+			// 											fetch("./js/data.json")
+			// 												.then(res => res.json())
+			// 												.then(data => {
+			// 													console.log("Loaded data");
+			// 													data.forEach(building =>
+			// 														renderBuilding(building)
+			// 													);
+			// 													const bufferUtils =
+			// 														THREE.BufferGeometryUtils;
+			// 													const buildingsGeom = bufferUtils.mergeBufferGeometries(
+			// 														buildingGeoms
+			// 													);
+			// 													buildingsGeom.computeVertexNormals();
+			//
+			// 													const buildingsMaterial = new THREE.MeshLambertMaterial(
+			// 														{
+			// 															color: 0xcccccc,
+			// 															side:
+			// 																THREE.DoubleSide
+			// 														}
+			// 													);
+			// 													const buildingsMesh = new THREE.Mesh(
+			// 														buildingsGeom,
+			// 														buildingsMaterial
+			// 													);
+			// 													scene.add(buildingsMesh);
+			// 												});
+			// 										});
+			// 								});
+			// 						});
+			// 				});
 
 			// Stats
 			var stats = new Stats();
@@ -166,26 +232,38 @@
 
 			animate();
 
-			function renderFloatBuilding(vertices) {
+			function renderFloatBuildings(rawVertices) {
 				const surfaceGeom = new THREE.BufferGeometry();
+				// const points = [];
+				// for (var i = 0; i < rawVertices.length - 2; i++) {
+				// 	points.push(rawVertices[i]);
+				// 	points.push(rawVertices[i+1]);
+				// 	points.push(rawVertices[i+2]);
+				// }
+				// console.log(points)
+				// const vertices = new Float32Array(points);
 				surfaceGeom.addAttribute(
 					"position",
-					new THREE.BufferAttribute(vertices, 3)
+					new THREE.BufferAttribute(rawVertices, 3)
 				);
-				buildingGeoms.push(surfaceGeom)
-				const bufferUtils = THREE.BufferGeometryUtils
-				const buildingsGeom = bufferUtils.mergeBufferGeometries(buildingGeoms);
+				buildingGeoms.push(surfaceGeom);
+				const bufferUtils = THREE.BufferGeometryUtils;
+				const buildingsGeom = bufferUtils.mergeBufferGeometries(
+					buildingGeoms
+				);
 				buildingsGeom.computeVertexNormals();
 
 				const buildingsMaterial = new THREE.MeshLambertMaterial({
 					color: 0xcccccc,
 					side: THREE.DoubleSide
 				});
-				const buildingsMesh = new THREE.Mesh(buildingsGeom, buildingsMaterial);
+				const buildingsMesh = new THREE.Mesh(
+					buildingsGeom,
+					buildingsMaterial
+				);
 				scene.add(buildingsMesh);
 			}
 
-			
 			function renderBuilding(surfaces) {
 				const surfaceGeom = new THREE.BufferGeometry();
 				const points = [];
@@ -201,20 +279,28 @@
 					"position",
 					new THREE.BufferAttribute(vertices, 3)
 				);
-				buildingGeoms.push(surfaceGeom)
+				buildingGeoms.push(surfaceGeom);
 			}
 
 			function pointFromVertex(vertex) {
 				return [
-					THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) - 65513 / 2,
-					THREE.Math.mapLinear(vertex[2], -39.0158999999985, 1797.1066, 0, 1836),
-					THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) - 31017 / 2
+					THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) -
+						65513 / 2,
+					THREE.Math.mapLinear(
+						vertex[2],
+						-39.0158999999985,
+						1797.1066,
+						0,
+						1836
+					),
+					THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) -
+						31017 / 2
 				];
 			}
 
 			function animate() {
 				requestAnimationFrame(animate);
-				stats.begin();
+				// stats.begin();
 				if (resizeRendererToDisplaySize(renderer)) {
 					const canvas = renderer.domElement;
 					camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -222,7 +308,7 @@
 				}
 				controls.update();
 				renderer.render(scene, camera);
-				stats.end();
+				// stats.end();
 			}
 
 			function resizeRendererToDisplaySize(renderer) {
@@ -230,7 +316,8 @@
 				const pixelRatio = window.devicePixelRatio;
 				const width = canvas.clientWidth * pixelRatio;
 				const height = canvas.clientHeight * pixelRatio;
-				const needResize = canvas.width !== width || canvas.height !== height;
+				const needResize =
+					canvas.width !== width || canvas.height !== height;
 				if (needResize) {
 					renderer.setSize(width, height, false);
 				}
