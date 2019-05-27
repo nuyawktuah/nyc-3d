@@ -3,47 +3,40 @@ var fs = require("fs");
 
 var writeStream = fs.createWriteStream("./buildings.dat");
 
-let points = [];
-
+const points = [];
 let count = 0;
 lineReader.eachLine("./data/buildings.json", function(line, last) {
 	count += 1;
 	if (count % 10000 === 0) {
 		console.log(count);
-		console.log(process.memoryUsage().heapUsed / 1024 / 1024, "MB used");
 	}
 
 	const building = JSON.parse(line.substring(0, line.length - 1)); // trailing comma
-	// addPoints(building);
+	addPoints(building);
 
-	if (last) {
-		// console.log("floatArray");
-		// const floatArray = new Float32Array(points);
-		// delete points;
-		console.log("buffer");
+	if (count >= 100000 || last) {
 		//prepare the length of the buffer to 4 bytes per float
 		var buffer = new Buffer(points.length * 4);
-
 		for (var i = 0; i < points.length; i++) {
 			//write the float in Little-Endian and move the offset
 			buffer.writeFloatLE(points[i], i * 4);
-			if (i % 10000000 === 0) {
-				console.log("write float", `${i}/${points.length}`);
-			}
 		}
 
-		console.log("write file");
 		fs.writeFileSync(`./data${count}.data`, buffer);
-		console.log(count, "buildings");
-		points = [];
+		console.log(`${count} buildings`);
 		return false;
 	}
 });
 
 function addPoints(building) {
+	const dupePoints = {};
 	building.forEach((surface, index) => {
 		for (var i = 0; i < surface.length; i++) {
+			const point = pointFromVertex(surface[i]);
+			const key = point.join(",");
+			if (dupePoints[key]) continue;
 			points.push(...pointFromVertex(surface[i]));
+			dupePoints[key] = true;
 		}
 	});
 }

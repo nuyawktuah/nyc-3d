@@ -98,132 +98,16 @@
 			scene.add(hemiLight);
 
 			// Buildings
-			const buildingGeoms = [];
-			// fetch("./data100000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-			//
-			// fetch("./data200000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-			fetch("./data.data")
-				.then(res => res.arrayBuffer())
-				.then(buffer => {
-					const buildingData = new Float32Array(buffer);
-					renderFloatBuildings(buildingData);
-				});
-			// fetch("./data400000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-
-			// fetch("./data500000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-			//
-			// fetch("./data600000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		console.log(buffer);
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-			//
-			// fetch("./data700000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		console.log(buffer);
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-
-			// fetch("./data800000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		console.log(buffer);
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-			//
-			// fetch("./data900000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		console.log(buffer);
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-			//
-			// fetch("./data1000000.data")
-			// 	.then(res => res.arrayBuffer())
-			// 	.then(buffer => {
-			// 		console.log(buffer);
-			// 		const buildingData = new Float32Array(buffer);
-			// 		renderFloatBuilding(buildingData);
-			// 	});
-
-			// 			fetch("./js/data.json")
-			// 				.then(res => res.json())
-			// 				.then(data => {
-			// 					data.forEach(building => renderBuilding(building));
-			// 					fetch("./js/data2.json")
-			// 						.then(res => res.json())
-			// 						.then(data => {
-			// 							data.forEach(building => renderBuilding(building));
-			// 							fetch("./js/data3.json")
-			// 								.then(res => res.json())
-			// 								.then(data => {
-			// 									data.forEach(building =>
-			// 										renderBuilding(building)
-			// 									);
-			// 									fetch("./js/data4.json")
-			// 										.then(res => res.json())
-			// 										.then(data => {
-			// 											data.forEach(building =>
-			// 												renderBuilding(building)
-			// 											);
-			//
-			// 											fetch("./js/data.json")
-			// 												.then(res => res.json())
-			// 												.then(data => {
-			// 													console.log("Loaded data");
-			// 													data.forEach(building =>
-			// 														renderBuilding(building)
-			// 													);
-			// 													const bufferUtils =
-			// 														THREE.BufferGeometryUtils;
-			// 													const buildingsGeom = bufferUtils.mergeBufferGeometries(
-			// 														buildingGeoms
-			// 													);
-			// 													buildingsGeom.computeVertexNormals();
-			//
-			// 													const buildingsMaterial = new THREE.MeshLambertMaterial(
-			// 														{
-			// 															color: 0xcccccc,
-			// 															side:
-			// 																THREE.DoubleSide
-			// 														}
-			// 													);
-			// 													const buildingsMesh = new THREE.Mesh(
-			// 														buildingsGeom,
-			// 														buildingsMaterial
-			// 													);
-			// 													scene.add(buildingsMesh);
-			// 												});
-			// 										});
-			// 								});
-			// 						});
-			// 				});
+			renderBuildings("data100000.data")
+			// renderBuildings("data2.data")
+			// renderBuildings("data3.data")
+			// renderBuildings("data4.data")
+			// renderBuildings("data5.data")
+			// renderBuildings("data6.data")
+			// renderBuildings("data7.data")
+			// renderBuildings("data8.data")
+			// renderBuildings("data9.data")
+			// renderBuildings("data10.data")
 
 			// Stats
 			var stats = new Stats();
@@ -232,24 +116,20 @@
 
 			animate();
 
-			function renderFloatBuildings(rawVertices) {
-				const surfaceGeom = new THREE.BufferGeometry();
-				// const points = [];
-				// for (var i = 0; i < rawVertices.length - 2; i++) {
-				// 	points.push(rawVertices[i]);
-				// 	points.push(rawVertices[i+1]);
-				// 	points.push(rawVertices[i+2]);
-				// }
-				// console.log(points)
-				// const vertices = new Float32Array(points);
-				surfaceGeom.addAttribute(
+			function renderBuildings(file) {
+				fetch(`./data/${file}`)
+				.then(res => res.arrayBuffer())
+				.then(buffer => {
+					const vertices = new Float32Array(buffer);
+					renderVertices(vertices);
+				});
+			}
+
+			function renderVertices(vertices) {
+				const buildingsGeom = new THREE.BufferGeometry();
+				buildingsGeom.addAttribute(
 					"position",
-					new THREE.BufferAttribute(rawVertices, 3)
-				);
-				buildingGeoms.push(surfaceGeom);
-				const bufferUtils = THREE.BufferGeometryUtils;
-				const buildingsGeom = bufferUtils.mergeBufferGeometries(
-					buildingGeoms
+					new THREE.BufferAttribute(vertices, 3)
 				);
 				buildingsGeom.computeVertexNormals();
 
@@ -300,7 +180,7 @@
 
 			function animate() {
 				requestAnimationFrame(animate);
-				// stats.begin();
+				stats.begin();
 				if (resizeRendererToDisplaySize(renderer)) {
 					const canvas = renderer.domElement;
 					camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -308,7 +188,7 @@
 				}
 				controls.update();
 				renderer.render(scene, camera);
-				// stats.end();
+				stats.end();
 			}
 
 			function resizeRendererToDisplaySize(renderer) {
