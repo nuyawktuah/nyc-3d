@@ -31,89 +31,159 @@
 			renderer.setClearColor(scene.fog.color, 1);
 			document.body.appendChild(renderer.domElement);
 
-			// Camera
-			const cameraRadius = 60000;
-			const theta = 45;
-			const phi = 60;
-			var camera = new THREE.PerspectiveCamera(
-				40,
-				window.innerWidth / window.innerHeight,
-				2,
-				400000
-			);
-			camera.position.x =
-				cameraRadius *
-				Math.sin((theta * Math.PI) / 360) *
-				Math.cos((phi * Math.PI) / 360);
-			camera.position.y = cameraRadius * Math.sin((phi * Math.PI) / 360);
-			camera.position.z =
-				cameraRadius *
-				Math.cos((theta * Math.PI) / 360) *
-				Math.cos((phi * Math.PI) / 360);
-
-			// Controls
-			var controls = new THREE.OrbitControls(camera);
-			// TODO: https://github.com/mrdoob/three.js/issues/7384#issuecomment-149972582
-
-			// Lights
-			var directionalLight = new THREE.DirectionalLight(0xaaaaaa, 1);
-			directionalLight.position.x = 10000;
-			directionalLight.position.y = 10000;
-			directionalLight.position.z = 10000;
-
-			var directionalLight2 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
-			directionalLight2.position.x = -10000;
-			directionalLight2.position.y = 10000;
-			directionalLight2.position.z = 0;
-
-			var directionalLight3 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
-			directionalLight3.position.x = 10000;
-			directionalLight3.position.y = 10000;
-			directionalLight3.position.z = -10000;
-
-			scene.add(directionalLight);
-			scene.add(directionalLight2);
-			scene.add(directionalLight3);
-
-			// Stats
-			var stats = new Stats();
-			stats.showPanel(0); // 0: fps
-			document.body.appendChild(stats.dom);
+			const [camera, controls] = renderCamera()
+			renderLights()
+			const stats = renderStats()
+			// renderFloor()
+			renderShoreline()
+			renderBuildings()
 
 			animate();
 
-			for (var i = 0; i <= 78; i++) {
-				renderBuffers(i);
+			function renderShoreline() {
+				fetch("./shoreline.json")
+					.then(res => res.json())
+					.then(lines => {
+						fetch("./shorelineFaces.json")
+							.then(res => res.json())
+							.then(faces => {
+								lines.forEach(line => {
+									const lineVectors = [];
+									line.forEach(([x, y, z]) => {
+										lineVectors.push(new THREE.Vector3(x, y, z));
+									});
+									renderLine(lineVectors);
+									// renderShape(lineVectors, faces)
+								});
+							});
+					});
+
+				function renderLine(lineVectors) {
+					var curve = new THREE.CatmullRomCurve3(lineVectors);
+					var points = curve.getPoints(100);
+					var points = curve.getPoints(50);
+					var geometry = new THREE.BufferGeometry().setFromPoints(points);
+					var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+					var curveObject = new THREE.Line(geometry, material);
+					scene.add(curveObject);
+				}
+
+				function renderShape(vertices, faces) {
+					const shapeGeom = new THREE.Geometry().setFromPoints(vertices);
+					for (var i = 0; i < (3 * 10) - 2; i+=3) {
+						const x = faces[i]
+						const y = faces[i + 1]
+						const z = faces[i + 2]
+						shapeGeom.faces.push(new THREE.Face3(x, y, z))
+					}
+
+					const material = new THREE.MeshPhongMaterial({
+						color: 0xffffff,
+						side: THREE.DoubleSide,
+						flatShading: true
+					});
+					const buildingsMesh = new THREE.Mesh(shapeGeom, material);
+					scene.add(buildingsMesh);
+				}
 			}
 
-			async function renderBuffers(index) {
-				const verticesBuffer = await fetchBuffer(`vertices${index}.buffer`);
-				const vertices = new Float32Array(verticesBuffer);
-				delete verticesBuffer;
-				const facesBuffer = await fetchBuffer(`faces${index}.buffer`);
-				const faces = new Uint32Array(facesBuffer);
-				delete facesBuffer;
-
-				const buildingsGeom = new THREE.BufferGeometry();
-				buildingsGeom.addAttribute(
-					"position",
-					new THREE.BufferAttribute(vertices, 3)
+			function renderCamera() {
+				const cameraRadius = 60000;
+				const theta = 45;
+				const phi = 60;
+				var camera = new THREE.PerspectiveCamera(
+					40,
+					window.innerWidth / window.innerHeight,
+					2,
+					400000
 				);
-				buildingsGeom.setIndex(new THREE.BufferAttribute(faces, 3));
-				delete vertices;
-				delete faces;
-
-				const buildingsMaterial = new THREE.MeshPhongMaterial({
-					color: 0xffffff,
-					side: THREE.DoubleSide,
-					flatShading: true
-				});
-				const buildingsMesh = new THREE.Mesh(buildingsGeom.toNonIndexed(), buildingsMaterial);
-				scene.add(buildingsMesh);
+				camera.position.x =
+					cameraRadius *
+					Math.sin((theta * Math.PI) / 360) *
+					Math.cos((phi * Math.PI) / 360);
+				camera.position.y = cameraRadius * Math.sin((phi * Math.PI) / 360);
+				camera.position.z =
+					cameraRadius *
+					Math.cos((theta * Math.PI) / 360) *
+					Math.cos((phi * Math.PI) / 360);
+				var controls = new THREE.OrbitControls(camera);
+				// TODO: https://github.com/mrdoob/three.js/issues/7384#issuecomment-149972582
+				return [camera, controls]
 			}
 
-			function fetchBuffer(file) {
-				return fetch(`./buffers/${file}`).then(res => res.arrayBuffer());
+			function renderFloor() {
+				var floorGeom = new THREE.PlaneGeometry(300000, 200000);
+				var floorMat = new THREE.MeshBasicMaterial({color: 0x000000});
+				var floor = new THREE.Mesh(floorGeom, floorMat);
+				floor.position.y = -0.2;
+				floor.rotation.x = - 90 * Math.PI / 180;
+				scene.add(floor)
+			}
+
+			function renderLights() {
+				const color = 0xaaaaaa;
+				
+				var directionalLight = new THREE.DirectionalLight(color, 1);
+				directionalLight.position.x = 10000;
+				directionalLight.position.y = 10000;
+				directionalLight.position.z = 10000;
+
+				var directionalLight2 = new THREE.DirectionalLight(color, 0.5);
+				directionalLight2.position.x = -10000;
+				directionalLight2.position.y = 10000;
+				directionalLight2.position.z = 0;
+
+				var directionalLight3 = new THREE.DirectionalLight(color, 0.5);
+				directionalLight3.position.x = 10000;
+				directionalLight3.position.y = 10000;
+				directionalLight3.position.z = -10000;
+
+				scene.add(directionalLight);
+				scene.add(directionalLight2);
+				scene.add(directionalLight3);
+			}
+
+			function renderStats() {
+				var stats = new Stats();
+				stats.showPanel(0); // 0: fps
+				document.body.appendChild(stats.dom);
+				return stats
+			}
+
+			function renderBuildings() {
+				for (var i = 0; i <= 78; i++) {
+					renderBuffers(i);
+				}
+
+				async function renderBuffers(index) {
+					const verticesBuffer = await fetchBuffer(`vertices${index}.buffer`);
+					const vertices = new Float32Array(verticesBuffer);
+					delete verticesBuffer;
+					const facesBuffer = await fetchBuffer(`faces${index}.buffer`);
+					const faces = new Uint32Array(facesBuffer);
+					delete facesBuffer;
+
+					const buildingsGeom = new THREE.BufferGeometry();
+					buildingsGeom.addAttribute(
+						"position",
+						new THREE.BufferAttribute(vertices, 3)
+					);
+					buildingsGeom.setIndex(new THREE.BufferAttribute(faces, 3));
+					delete vertices;
+					delete faces;
+
+					const buildingsMaterial = new THREE.MeshPhongMaterial({
+						color: 0xffffff,
+						side: THREE.DoubleSide,
+						flatShading: true
+					});
+					const buildingsMesh = new THREE.Mesh(buildingsGeom.toNonIndexed(), buildingsMaterial);
+					scene.add(buildingsMesh);
+				}
+
+				function fetchBuffer(file) {
+					return fetch(`./buffers/${file}`).then(res => res.arrayBuffer());
+				}
 			}
 
 			function animate() {
