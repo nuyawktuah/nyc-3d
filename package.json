@@ -1,0 +1,22 @@
+{
+  "name": "node-map-3d",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:olivernyc/node-map-3d.git",
+  "author": "olivernyc <oliver@static.network>",
+  "license": "MIT",
+  "devDependencies": {
+    "big-json": "^2.0.2",
+    "fs-extra": "^8.0.1",
+    "line-reader": "^0.4.0"
+  },
+  "dependencies": {
+    "color": "2.0.1",
+    "earcut": "^2.1.5",
+    "minimist": "^1.2.0",
+    "readline": "^1.3.0"
+  },
+  "scripts": {
+    "process-data": "node --max-old-space-size=20000 scripts/float32array.js"
+  }
+}

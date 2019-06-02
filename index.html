@@ -18,24 +18,17 @@
 	</head>
 	<body>
 		<script src="js/three.js"></script>
-		<script src="js/BufferGeometryUtils.js"></script>
 		<script src="js/orbitControls.js"></script>
-		<script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+		<script src="js/stats.js"></script>
 		<script>
 			// Scene
 			var scene = new THREE.Scene();
-			scene.fog = new THREE.Fog(0x000000, 1, 400000);
+			scene.fog = new THREE.Fog(0xf5f5f5, 1, 10000000);
 
 			// Renderer
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.setClearColor(scene.fog.color, 1);
-			// Gamma settings make things look 'nicer' for some reason
-			renderer.gammaInput = true;
-			renderer.gammaOutput = true;
-			renderer.physicallyBasedShading = true;
-			renderer.shadowMap.enabled = true;
-			renderer.shadowMapSoft = true;
 			document.body.appendChild(renderer.domElement);
 
 			// Camera
@@ -62,52 +55,25 @@
 			var controls = new THREE.OrbitControls(camera);
 			// TODO: https://github.com/mrdoob/three.js/issues/7384#issuecomment-149972582
 
-			// Floor
-			var floorGeom = new THREE.PlaneGeometry(65513, 31017);
-			var floorMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-			var floor = new THREE.Mesh(floorGeom, floorMat);
-			floor.position.y = -0.2;
-			floor.rotation.x = (-90 * Math.PI) / 180;
-			scene.add(floor);
-
 			// Lights
-			var ambientLight = new THREE.AmbientLight(0x555555);
-			ambientLight.color.setHSL(0.1, 0.1, 0.4);
-			scene.add(ambientLight);
+			var directionalLight = new THREE.DirectionalLight(0xaaaaaa, 1);
+			directionalLight.position.x = 10000;
+			directionalLight.position.y = 10000;
+			directionalLight.position.z = 10000;
 
-			var directionalLight = new THREE.DirectionalLight(0xffffff);
-			directionalLight.color.setHSL(0.1, 0.1, 0.55);
-			directionalLight.position.x = 1000;
-			directionalLight.position.y = 1000;
-			directionalLight.position.z = 750;
-			directionalLight.position.normalize();
+			var directionalLight2 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+			directionalLight2.position.x = -10000;
+			directionalLight2.position.y = 10000;
+			directionalLight2.position.z = 0;
+
+			var directionalLight3 = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+			directionalLight3.position.x = 10000;
+			directionalLight3.position.y = 10000;
+			directionalLight3.position.z = -10000;
+
 			scene.add(directionalLight);
-
-			var directionalLight2 = new THREE.DirectionalLight(0x808080);
-			directionalLight2.color.setHSL(0.1, 0.1, 0.5);
-			directionalLight2.position.x = -1000;
-			directionalLight2.position.y = 1000;
-			directionalLight2.position.z = -750;
-			directionalLight2.position.normalize();
 			scene.add(directionalLight2);
-
-			var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.65);
-			hemiLight.color.setHSL(0.6, 0.35, 0.7);
-			hemiLight.groundColor.setHSL(0.095, 0.5, 0.6);
-			hemiLight.position.set(0, 600, 0);
-			scene.add(hemiLight);
-
-			// Buildings
-			renderBuildings("data100000.data")
-			// renderBuildings("data2.data")
-			// renderBuildings("data3.data")
-			// renderBuildings("data4.data")
-			// renderBuildings("data5.data")
-			// renderBuildings("data6.data")
-			// renderBuildings("data7.data")
-			// renderBuildings("data8.data")
-			// renderBuildings("data9.data")
-			// renderBuildings("data10.data")
+			scene.add(directionalLight3);
 
 			// Stats
 			var stats = new Stats();
@@ -116,66 +82,38 @@
 
 			animate();
 
-			function renderBuildings(file) {
-				fetch(`./data/${file}`)
-				.then(res => res.arrayBuffer())
-				.then(buffer => {
-					const vertices = new Float32Array(buffer);
-					renderVertices(vertices);
-				});
+			for (var i = 0; i <= 19; i++) {
+				renderBuffers(i);
 			}
 
-			function renderVertices(vertices) {
+			async function renderBuffers(index) {
+				const verticesBuffer = await fetchBuffer(`vertices${index}.buffer`);
+				const vertices = new Float32Array(verticesBuffer);
+				delete verticesBuffer;
+				const facesBuffer = await fetchBuffer(`faces${index}.buffer`);
+				const faces = new Uint32Array(facesBuffer);
+				delete facesBuffer;
+
 				const buildingsGeom = new THREE.BufferGeometry();
 				buildingsGeom.addAttribute(
 					"position",
 					new THREE.BufferAttribute(vertices, 3)
 				);
-				buildingsGeom.computeVertexNormals();
+				buildingsGeom.setIndex(new THREE.BufferAttribute(faces, 3));
+				delete vertices;
+				delete faces;
 
-				const buildingsMaterial = new THREE.MeshLambertMaterial({
-					color: 0xcccccc,
-					side: THREE.DoubleSide
+				const buildingsMaterial = new THREE.MeshPhongMaterial({
+					color: 0xffffff,
+					side: THREE.DoubleSide,
+					flatShading: true
 				});
-				const buildingsMesh = new THREE.Mesh(
-					buildingsGeom,
-					buildingsMaterial
-				);
+				const buildingsMesh = new THREE.Mesh(buildingsGeom.toNonIndexed(), buildingsMaterial);
 				scene.add(buildingsMesh);
 			}
 
-			function renderBuilding(surfaces) {
-				const surfaceGeom = new THREE.BufferGeometry();
-				const points = [];
-				surfaces.forEach(([surface], index) => {
-					for (var i = 0; i < surface.length - 2; i++) {
-						points.push(...pointFromVertex(surface[i]));
-						points.push(...pointFromVertex(surface[i + 1]));
-						points.push(...pointFromVertex(surface[i + 2]));
-					}
-				});
-				const vertices = new Float32Array(points);
-				surfaceGeom.addAttribute(
-					"position",
-					new THREE.BufferAttribute(vertices, 3)
-				);
-				buildingGeoms.push(surfaceGeom);
-			}
-
-			function pointFromVertex(vertex) {
-				return [
-					THREE.Math.mapLinear(vertex[1], 194479, 259992, 0, 65513) -
-						65513 / 2,
-					THREE.Math.mapLinear(
-						vertex[2],
-						-39.0158999999985,
-						1797.1066,
-						0,
-						1836
-					),
-					THREE.Math.mapLinear(vertex[0], 978979, 1009996, 0, 31017) -
-						31017 / 2
-				];
+			function fetchBuffer(file) {
+				return fetch(`./buffers/${file}`).then(res => res.arrayBuffer());
 			}
 
 			function animate() {
@@ -196,8 +134,7 @@
 				const pixelRatio = window.devicePixelRatio;
 				const width = canvas.clientWidth * pixelRatio;
 				const height = canvas.clientHeight * pixelRatio;
-				const needResize =
-					canvas.width !== width || canvas.height !== height;
+				const needResize = canvas.width !== width || canvas.height !== height;
 				if (needResize) {
 					renderer.setSize(width, height, false);
 				}
