@@ -17,6 +17,7 @@
     "readline": "^1.3.0"
   },
   "scripts": {
-    "import-buildings": "node --max-old-space-size=20000 scripts/importBuildings.js"
+    "import-buildings": "node --max-old-space-size=20000 scripts/importBuildings.js",
+    "import-shoreline": "node --max-old-space-size=20000 scripts/importShoreline.js"
   }
 }
