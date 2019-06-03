@@ -147,7 +147,7 @@ function renderCamera() {
 	const aspect = window.innerWidth / window.innerHeight;
 	const near = 2;
 	const far = 10000000;
-	const phi = 60; // ??
+	const phi = 180; // ??
 	var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 	camera.position.x = cameraRadius * -2;
 	camera.position.y = cameraRadius * Math.sin((phi * Math.PI) / 360);
