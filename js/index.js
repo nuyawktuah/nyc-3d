@@ -11,9 +11,9 @@ document.body.appendChild(renderer.domElement);
 const [camera, controls] = renderCamera();
 renderLights();
 const stats = renderStats();
-renderShoreline();
-// renderShoreline2();
-renderBuildings();
+// renderShoreline();
+renderShoreline2();
+// renderBuildings();
 
 animate();
 
@@ -133,8 +133,10 @@ function renderShoreline2() {
 			geometry.faces.push(new THREE.Face3(a, b, c));
 		}
 
-		var material = new THREE.MeshPhongMaterial({
-			color: 0x000000
+		var material = new THREE.MeshBasicMaterial({
+			color: (Math.random() * 0xffffff) << 0,
+			side: THREE.DoubleSide
+			// flatShading: THREE.FlatShading
 		});
 		var mesh = new THREE.Mesh(geometry, material);
 		scene.add(mesh);
