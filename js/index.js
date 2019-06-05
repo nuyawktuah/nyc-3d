@@ -1,6 +1,6 @@
 // Scene
 var scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xf5f5f5, 1, 10000000);
+scene.fog = new THREE.Fog(0xb2d8f9, 1, 10000000);
 
 // Renderer
 var renderer = new THREE.WebGLRenderer();
@@ -13,7 +13,7 @@ renderLights();
 const stats = renderStats();
 // renderShoreline();
 renderShoreline2();
-// renderBuildings();
+renderBuildings();
 
 animate();
 
@@ -107,6 +107,8 @@ function renderShoreline2() {
 		});
 
 	function renderLine(vertices, faces) {
+		// const color = Math.random() * 0xffffff;
+		const color = 0xe8e8e8;
 		if (!faces.length) {
 			const lineVectors = [];
 			vertices.forEach(([x, y, z]) => {
@@ -115,7 +117,7 @@ function renderShoreline2() {
 			var geometry = new THREE.BufferGeometry().setFromPoints(
 				lineVectors
 			);
-			var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+			var material = new THREE.LineBasicMaterial({ color });
 			var curveObject = new THREE.Line(geometry, material);
 			scene.add(curveObject);
 			return;
@@ -134,7 +136,7 @@ function renderShoreline2() {
 		}
 
 		var material = new THREE.MeshBasicMaterial({
-			color: (Math.random() * 0xffffff) << 0,
+			color,
 			side: THREE.DoubleSide
 			// flatShading: THREE.FlatShading
 		});
@@ -161,7 +163,7 @@ function renderCamera() {
 }
 
 function renderLights() {
-	const color = 0xdddddd;
+	const color = 0xffffff;
 
 	var directionalLight = new THREE.DirectionalLight(color, 0.5);
 	directionalLight.position.x = 10000;
