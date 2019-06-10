@@ -10,7 +10,6 @@ const appended = {};
 shoreline.geometries.forEach((lineSegment, index) => {
 	console.log(`Segment ${index}`);
 	if (appended[index]) {
-		console.log("Already appended");
 		return; // Line segment was appended to a previous one
 	}
 
@@ -21,7 +20,6 @@ shoreline.geometries.forEach((lineSegment, index) => {
 
 	// Line is already closed, nothing to do
 	if (closed) {
-		console.log("Already closed");
 		combinedLines.push(coordinates);
 		appended[index] = true;
 		return;
@@ -36,7 +34,6 @@ shoreline.geometries.forEach((lineSegment, index) => {
 		const endpointKey = vertexKey(combinedLine[combinedLine.length - 1]);
 		closed = startpointKey === endpointKey;
 		if (closed) {
-			console.log("closed :)");
 			return;
 		}
 
@@ -55,7 +52,6 @@ shoreline.geometries.forEach((lineSegment, index) => {
 			);
 			if (startpointKey2 === endpointKey2) return; // Ignore closed segments
 			if (startpointKey2 === endpointKey) {
-				console.log("Found match", index2);
 				combinedLine.push(...coordinates2);
 				appended[index2] = true;
 				noMatch = false;
@@ -64,19 +60,16 @@ shoreline.geometries.forEach((lineSegment, index) => {
 			if (endpointKey2 === endpointKey) {
 				appended[index2] = true;
 				noMatch = false;
-				console.log("Found reverse match", index2);
 				combinedLine.push(...coordinates2.reverse());
 			}
 
 			if (startpointKey2 === startpointKey) {
-				console.log("Found match", index2);
 				combinedLine = [...coordinates2.reverse(), ...combinedLine];
 				appended[index2] = true;
 				noMatch = false;
 			}
 
 			if (endpointKey2 === startpointKey) {
-				console.log("Found match", index2);
 				combinedLine = [...coordinates2, ...combinedLine];
 				appended[index2] = true;
 				noMatch = false;
@@ -91,46 +84,9 @@ shoreline.geometries.forEach((lineSegment, index) => {
 	combinedLines.push(combinedLine);
 });
 
-// shoreline.geometries.forEach((line, index) => {
-// 	let appended = false;
-// 	combinedLines.forEach((vertices, index2) => {
-// 		const threshold = 100;
-// 		const start1 = line.coordinates[0];
-// 		const end1 = line.coordinates[line.coordinates.length - 1];
-// 		const start2 = vertices[0];
-// 		const end2 = vertices[vertices.length - 1];
-//
-// 		const endStartDist = distance(end1, start2);
-// 		const startStartDist = distance(start1, start2);
-// 		const startEndDist = distance(start1, end2);
-// 		const endEndDist = distance(end1, end2);
-//
-// 		if (endStartDist < threshold) {
-// 			// combinedLines[index2] = [...line.coordinates, ...vertices];
-// 			// appended = true;
-// 			// console.log("es");
-// 		} else if (startStartDist < threshold) {
-// 			// if (appended) console.log("ss", index);
-// 			// line.coordinates.reverse();
-// 			// vertices = [...line.coordinates, ...vertices];
-// 			// appended = true;
-// 		} else if (endEndDist < threshold) {
-// 			// if (appended) console.log("ee", index);
-// 			// line.coordinates.reverse();
-// 			// vertices.push(...line.coordinates);
-// 			// appended = true;
-// 		} else if (startEndDist < threshold) {
-// 			// combinedLines[index2] = [...vertices, ...line.coordinates];
-// 			// appended = true;
-// 		}
-// 	});
-//
-// 	if (!appended) {
-// 		// const scaledCoords = line.coordinates.map(scale);
-// 		combinedLines.push(line.coordinates);
-// 		// lines.push(scaledCoords);
-// 	}
-// });
+// Hacky way to merge disconnected lines
+combinedLines[2].push(...combinedLines[70])
+combinedLines.splice(70, 1)
 
 combinedLines.forEach((line, index) => {
 	const scaledCoords = line.map(scale);
@@ -152,43 +108,11 @@ combinedLines.forEach((line, index) => {
 
 console.log(`${combinedLines.length} lines`);
 
-// shoreline.geometries.forEach((line, index) => {
-// 	console.log(`Line ${index}, ${line.coordinates.length} coords`);
-// 	const scaledCoords = line.coordinates.map(scale);
-// 	const startpointKey = scaledCoords[0].join(",");
-// 	const endpointKey = scaledCoords[scaledCoords.length - 1].join(",");
-//
-// 	const closed = startpointKey === endpointKey;
-// 	if (closed) {
-// 		console.log("Complete!");
-// 		const vertices = line.coordinates.reduce((acc, cur) => {
-// 			acc.push(...cur);
-// 			return acc;
-// 		}, []);
-// 		faces.push(earcut(vertices, null, 2).map(i => parseInt(i)));
-// 	} else {
-// 		faces.push([]);
-//
-// 		//  || endpoints.has(endpointKey)) {
-// 		// 	console.log("Completed loop :)");
-// 		// 	console.log(
-// 		// 		index,
-// 		// 		endpoints.get(startpointKey),
-// 		// 		endpoints.get(endpointKey)
-// 		// 	);
-// 		// }
-// 	}
-//
-// 	lines.push(scaledCoords);
-// 	// faces.push(earcut(scaledCoords.slice(0, 1000), null, 0));
-// });
-
 fs.outputJSON("./shoreline.json", combinedLines);
 fs.outputJSON("./shorelineFaces.json", faces);
 
 function vertexKey(vertex) {
-	const precision = 1;
-	return vertex.map(p => parseInt(p / precision) * precision).join(",");
+	return vertex.map(p => Math.round(p)).join(",");
 }
 
 function distance(vertex1, vertex2) {

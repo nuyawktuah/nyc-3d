@@ -3,7 +3,9 @@ var scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xb2d8f9, 1, 10000000);
 
 // Renderer
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({
+	powerPreference: "high-performance"
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(scene.fog.color, 1);
 document.body.appendChild(renderer.domElement);
@@ -11,22 +13,34 @@ document.body.appendChild(renderer.domElement);
 const [camera, controls] = renderCamera();
 renderLights();
 const stats = renderStats();
-// renderShoreline();
+renderShoreline();
 renderShoreline2();
-renderBuildings();
+  // renderBuildings();
 
 animate();
 
 async function renderBuildings() {
+	const buildingsMaterial = new THREE.MeshPhongMaterial({
+		side: THREE.DoubleSide,
+		flatShading: THREE.FlatShading
+	});
+
+	let faceCount = 0;
 	for (var i = 78; i >= 0; i--) {
-		await renderBuffers(i);
+		try {
+			await renderBuffers(i);
+		} catch (error) {
+			console.error(error);
+		}
 	}
+	console.log(faceCount);
 
 	async function renderBuffers(index) {
 		const verticesBuffer = await fetchBuffer(`vertices${index}.buffer`);
 		const vertices = new Float32Array(verticesBuffer);
 		const facesBuffer = await fetchBuffer(`faces${index}.buffer`);
 		const faces = new Uint32Array(facesBuffer);
+		faceCount += faces.length;
 
 		const buildingsGeom = new THREE.BufferGeometry();
 		buildingsGeom.addAttribute(
@@ -34,6 +48,7 @@ async function renderBuildings() {
 			new THREE.BufferAttribute(vertices, 3)
 		);
 		buildingsGeom.setIndex(new THREE.BufferAttribute(faces, 3));
+		buildingsGeom.matrixAutoUpdate = false;
 
 		// const colorArray = new Array(faces.length);
 		// for (var i = 0; i < colorArray.length - 2; i += 3) {
@@ -46,17 +61,6 @@ async function renderBuildings() {
 		// 	"color",
 		// 	new THREE.BufferAttribute(colorBuffer, 3, true)
 		// );
-
-		// Does this do anything?
-		delete verticesBuffer;
-		delete facesBuffer;
-		delete vertices;
-		delete faces;
-
-		const buildingsMaterial = new THREE.MeshPhongMaterial({
-			side: THREE.DoubleSide,
-			flatShading: THREE.FlatShading
-		});
 
 		const buildingsMesh = new THREE.Mesh(
 			buildingsGeom.toNonIndexed(),
@@ -102,13 +106,15 @@ function renderShoreline2() {
 			fetch("./shorelineFaces.json")
 				.then(res => res.json())
 				.then(faces => {
-					lines.forEach((line, i) => renderLine(line, faces[i]));
+					lines.forEach((line, i) => renderLine(line, faces[i], i));
 				});
 		});
 
-	function renderLine(vertices, faces) {
-		// const color = Math.random() * 0xffffff;
-		const color = 0xe8e8e8;
+	function renderLine(vertices, faces, index) {
+		 const color = Math.random() * 0xffffff;
+		 console.log(color.toString(16), index)
+		 // if (index < 71) return
+		// const color = 0xe8e8e8;
 		if (!faces.length) {
 			const lineVectors = [];
 			vertices.forEach(([x, y, z]) => {
@@ -165,17 +171,17 @@ function renderCamera() {
 function renderLights() {
 	const color = 0xffffff;
 
-	var directionalLight = new THREE.DirectionalLight(color, 0.5);
+	var directionalLight = new THREE.DirectionalLight(color, 0.75);
 	directionalLight.position.x = 10000;
 	directionalLight.position.y = 10000;
 	directionalLight.position.z = 10000;
 
-	var directionalLight2 = new THREE.DirectionalLight(color, 0.5);
+	var directionalLight2 = new THREE.DirectionalLight(color, 0.75);
 	directionalLight2.position.x = -10000;
 	directionalLight2.position.y = 10000;
 	directionalLight2.position.z = 0;
 
-	var directionalLight3 = new THREE.DirectionalLight(color, 0.5);
+	var directionalLight3 = new THREE.DirectionalLight(color, 0.75);
 	directionalLight3.position.x = 10000;
 	directionalLight3.position.y = 10000;
 	directionalLight3.position.z = -10000;
