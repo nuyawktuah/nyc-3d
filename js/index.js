@@ -1,6 +1,6 @@
 // Scene
 var scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xb2d8f9, 1, 10000000);
+scene.fog = new THREE.Fog(0xf5f5f5, 1, 10000000);
 
 // Renderer
 var renderer = new THREE.WebGLRenderer({
@@ -14,8 +14,9 @@ const [camera, controls] = renderCamera();
 renderLights();
 const stats = renderStats();
 renderShoreline();
-renderShoreline2();
-  // renderBuildings();
+// renderShoreline2();
+renderBuildings();
+renderNodes();
 
 animate();
 
@@ -74,6 +75,98 @@ async function renderBuildings() {
 	}
 }
 
+async function renderNodes() {
+	const nodesRes = await fetch("/data/nodes.json");
+	const nodes = await nodesRes.json();
+	const linksRes = await fetch("https://node-db.netlify.com/links.json");
+	const links = await linksRes.json();
+
+	const nodesById = nodes.reduce((acc, cur) => {
+		acc[cur.id] = cur;
+		return acc;
+	}, {});
+
+	console.log(nodesById);
+
+	links.forEach(link => {
+		const node1 = nodesById[link.from];
+		const node2 = nodesById[link.to];
+		if (!node1 || !node2) return;
+		console.log("rendered link");
+		if (link.status !== "active") return;
+		const status1 = nodeStatus(node1)
+		const status2 = nodeStatus(node2)
+		const backboneLink = ["supernode", "hub"].includes(status1) && ["supernode", "hub"].includes(status2)
+		const color = backboneLink ? 0x0000ff : 0xff0000
+			const opacity = backboneLink ? 0.75 : 0.5
+		renderLink(node1.coordinates, node2.coordinates, color, opacity);
+	});
+
+	function nodeStatus(node) {
+		const { status, notes = "", tickets, panoramas } = node;
+		const isActive = status === "Installed";
+		const isSupernode = notes.toLowerCase().indexOf("supernode") > -1;
+		const isHub = notes.toLowerCase().indexOf("hub") > -1;
+		const isResponsive = tickets && tickets.length > 2;
+		const hasPanoramas = panoramas && panoramas.length;
+
+		if (isActive) {
+			if (isSupernode) return "supernode";
+			if (isHub) return "hub";
+			return "active";
+		}
+
+		if (isSupernode) return "potential-supernode";
+		if (isHub) return "potential-hub";
+		if (isResponsive || hasPanoramas) return "potential";
+		return "dead";
+	}
+}
+
+async function renderLink(startPoint, endPoint, color, opacity) {
+	function LineCurve(scale) {
+		THREE.Curve.call(this);
+		this.scale = scale === undefined ? 1 : scale;
+		this.startPoint = scaleVertex(startPoint);
+		this.endPoint = scaleVertex(endPoint);
+
+		function scaleVertex(vertex) {
+			return [
+				mapLinear(vertex[1], 194479, 259992, 0, 65513) - 65513 / 2,
+				mapLinear(vertex[2], -39.0158999999985, 1797.1066, 0, 1836),
+				mapLinear(vertex[0], 978979, 1009996, 0, 31017) - 31017 / 2
+			];
+		}
+
+		function mapLinear(x, a1, a2, b1, b2) {
+			return b1 + ((x - a1) * (b2 - b1)) / (a2 - a1);
+		}
+	}
+
+	LineCurve.prototype = Object.create(THREE.Curve.prototype);
+	LineCurve.prototype.constructor = LineCurve;
+
+	// T is between 0 and 1
+	LineCurve.prototype.getPoint = function(t) {
+		const [x1, y1, z1] = this.startPoint;
+		const [x2, y2, z2] = this.endPoint;
+		const xDiff = x2 - x1;
+		const yDiff = y2 - y1;
+		const zDiff = z2 - z1;
+		var tx = x1 + xDiff * t;
+		var ty = y1 + yDiff * t;
+		var tz = z1 + zDiff * t;
+		return new THREE.Vector3(tx, ty, tz);
+	};
+
+	var path = new LineCurve(10000);
+	var geometry = new THREE.TubeGeometry(path, 1, 10, 8, false);
+	var material = new THREE.MeshBasicMaterial({ color, transparent: true,
+    opacity });
+	var mesh = new THREE.Mesh(geometry, material);
+	scene.add(mesh);
+}
+
 function renderShoreline() {
 	fetch("./shoreline.json")
 		.then(res => res.json())
@@ -93,7 +186,7 @@ function renderShoreline() {
 
 	function renderLine(vertices) {
 		var geometry = new THREE.BufferGeometry().setFromPoints(vertices);
-		var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+		var material = new THREE.LineBasicMaterial({ color: 0x555555 });
 		var curveObject = new THREE.Line(geometry, material);
 		scene.add(curveObject);
 	}
@@ -111,9 +204,9 @@ function renderShoreline2() {
 		});
 
 	function renderLine(vertices, faces, index) {
-		 const color = Math.random() * 0xffffff;
-		 console.log(color.toString(16), index)
-		 // if (index < 71) return
+		const color = Math.random() * 0xffffff;
+		console.log(color.toString(16), index);
+		// if (index < 71) return
 		// const color = 0xe8e8e8;
 		if (!faces.length) {
 			const lineVectors = [];
