@@ -8,6 +8,8 @@ var renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(scene.fog.color, 1);
+renderer.gammaInput = true;
+renderer.gammaOutput = true;
 document.body.appendChild(renderer.domElement);
 
 const [camera, controls] = renderCamera();
