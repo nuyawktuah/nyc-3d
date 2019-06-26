@@ -23,6 +23,9 @@ renderNodes();
 animate();
 
 async function renderBuildings() {
+	const buildingsBuffer = fetchBuffer("buildings.buffer");
+	const buildings = new Uint32Array(buildingsBuffer);
+
 	const buildingsMaterial = new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 		flatShading: THREE.FlatShading
@@ -36,7 +39,6 @@ async function renderBuildings() {
 			console.error(error);
 		}
 	}
-	console.log(faceCount);
 
 	async function renderBuffers(index) {
 		const verticesBuffer = await fetchBuffer(`vertices${index}.buffer`);
@@ -51,19 +53,25 @@ async function renderBuildings() {
 			new THREE.BufferAttribute(vertices, 3)
 		);
 		buildingsGeom.setIndex(new THREE.BufferAttribute(faces, 3));
-		buildingsGeom.matrixAutoUpdate = false;
 
-		// const colorArray = new Array(faces.length);
-		// for (var i = 0; i < colorArray.length - 2; i += 3) {
-		// 	colorArray[i] = 255;
-		// 	colorArray[i + 1] = i % 100 < 10 ? 0 : 255;
-		// 	colorArray[i + 2] = i % 100 < 10 ? 0 : 255;
-		// }
-		// const colorBuffer = Uint8Array.from(colorArray);
-		// buildingsGeom.addAttribute(
-		// 	"color",
-		// 	new THREE.BufferAttribute(colorBuffer, 3, true)
-		// );
+		const colorArray = new Array(faces.length).fill(1);
+		const colorBuffer = Uint8Array.from(colorArray);
+		const colorAttribute = new THREE.BufferAttribute(colorBuffer, 3);
+		colorAttribute.setDynamic(true);
+		buildingsGeom.addAttribute("color", colorAttribute);
+
+		for (var j = 0; j < 101; j++) {
+			highlightBuilding(j);
+		}
+
+		function highlightBuilding(buildingIndex) {
+			const facesStart = buildings[buildingIndex];
+			const facesEnd = buildings[buildingIndex + 1];
+			for (var i = facesStart; i < facesEnd; i++) {
+				const vertexIndex = faces[i];
+				colorAttribute.setXYZ(vertexIndex, 0, 0, 1);
+			}
+		}
 
 		const buildingsMesh = new THREE.Mesh(
 			buildingsGeom.toNonIndexed(),
