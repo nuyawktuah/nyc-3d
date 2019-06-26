@@ -96,11 +96,13 @@ async function renderNodes() {
 		if (!node1 || !node2) return;
 		console.log("rendered link");
 		if (link.status !== "active") return;
-		const status1 = nodeStatus(node1)
-		const status2 = nodeStatus(node2)
-		const backboneLink = ["supernode", "hub"].includes(status1) && ["supernode", "hub"].includes(status2)
-		const color = backboneLink ? 0x0000ff : 0xff0000
-			const opacity = backboneLink ? 0.75 : 0.5
+		const status1 = nodeStatus(node1);
+		const status2 = nodeStatus(node2);
+		const backboneLink =
+			["supernode", "hub"].includes(status1) &&
+			["supernode", "hub"].includes(status2);
+		const color = backboneLink ? 0x0000ff : 0xff0000;
+		const opacity = backboneLink ? 0.75 : 0.5;
 		renderLink(node1.coordinates, node2.coordinates, color, opacity);
 	});
 
@@ -163,8 +165,11 @@ async function renderLink(startPoint, endPoint, color, opacity) {
 
 	var path = new LineCurve(10000);
 	var geometry = new THREE.TubeGeometry(path, 1, 10, 8, false);
-	var material = new THREE.MeshBasicMaterial({ color, transparent: true,
-    opacity });
+	var material = new THREE.MeshBasicMaterial({
+		color,
+		transparent: true,
+		opacity
+	});
 	var mesh = new THREE.Mesh(geometry, material);
 	scene.add(mesh);
 }
