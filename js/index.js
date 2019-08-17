@@ -18,7 +18,7 @@ const stats = renderStats();
 renderShoreline();
 // renderShoreline2();
 renderBuildings();
-renderNodes();
+// renderNodes();
 
 animate();
 
