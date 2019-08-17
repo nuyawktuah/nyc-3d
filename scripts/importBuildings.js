@@ -17,7 +17,7 @@ let currentTile = 0;
 let facesCount = 0;
 let vertexCount = 0;
 
-const TILE_SIZE = 256000;
+const TILE_SIZE = 10240000000;
 const LIMIT = 1083437;
 
 processBuildings();
