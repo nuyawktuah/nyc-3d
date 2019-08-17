@@ -85,8 +85,8 @@ shoreline.geometries.forEach((lineSegment, index) => {
 });
 
 // Hacky way to merge disconnected lines
-combinedLines[2].push(...combinedLines[70])
-combinedLines.splice(70, 1)
+combinedLines[2].push(...combinedLines[70]);
+combinedLines.splice(70, 1);
 
 combinedLines.forEach((line, index) => {
 	const scaledCoords = line.map(scale);

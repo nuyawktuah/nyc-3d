@@ -28,7 +28,7 @@ async function renderBuildings() {
 
 	const buildingsMaterial = new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
-		flatShading: THREE.FlatShading,
+		flatShading: THREE.FlatShading
 		// vertexColors: THREE.FaceColors
 	});
 
@@ -55,24 +55,24 @@ async function renderBuildings() {
 		);
 		buildingsGeom.setIndex(new THREE.BufferAttribute(faces, 3));
 
-// 		const colorArray = new Array(faces.length).fill(1);
-// 		const colorBuffer = Uint8Array.from(colorArray);
-// 		const colorAttribute = new THREE.BufferAttribute(colorBuffer, 3);
-// 		colorAttribute.setDynamic(true);
-// 		buildingsGeom.addAttribute("color", colorAttribute);
-// 
-// 		for (var j = 0; j < 101; j++) {
-// 			highlightBuilding(j);
-// 		}
-// 
-// 		function highlightBuilding(buildingIndex) {
-// 			const facesStart = buildings[buildingIndex];
-// 			const facesEnd = buildings[buildingIndex + 1];
-// 			for (var i = facesStart; i < facesEnd; i++) {
-// 				const vertexIndex = faces[i];
-// 				colorAttribute.setXYZ(vertexIndex, 0, 0, 1);
-// 			}
-// 		}
+		// 		const colorArray = new Array(faces.length).fill(1);
+		// 		const colorBuffer = Uint8Array.from(colorArray);
+		// 		const colorAttribute = new THREE.BufferAttribute(colorBuffer, 3);
+		// 		colorAttribute.setDynamic(true);
+		// 		buildingsGeom.addAttribute("color", colorAttribute);
+		//
+		// 		for (var j = 0; j < 101; j++) {
+		// 			highlightBuilding(j);
+		// 		}
+		//
+		// 		function highlightBuilding(buildingIndex) {
+		// 			const facesStart = buildings[buildingIndex];
+		// 			const facesEnd = buildings[buildingIndex + 1];
+		// 			for (var i = facesStart; i < facesEnd; i++) {
+		// 				const vertexIndex = faces[i];
+		// 				colorAttribute.setXYZ(vertexIndex, 0, 0, 1);
+		// 			}
+		// 		}
 
 		const buildingsMesh = new THREE.Mesh(
 			buildingsGeom.toNonIndexed(),
