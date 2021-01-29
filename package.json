@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "color": "2.0.1",
-    "csv-parse": "^4.4.3",
+    "csv-parse": "^4.4.6",
     "earcut": "^2.1.5",
     "minimist": "^1.2.0",
     "node-fetch": "^2.6.0",
