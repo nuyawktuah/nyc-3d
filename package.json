@@ -15,7 +15,7 @@
     "csv-parse": "^4.4.3",
     "earcut": "^2.1.5",
     "minimist": "^1.2.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.1.1",
     "readline": "^1.3.0"
   },
   "scripts": {
